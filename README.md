@@ -29,8 +29,3 @@ function getRandomFloat(min, max) {
 />
 ```
 
-
-> String
-
-Your GitHub id or organization name.
-
