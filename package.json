@@ -1,0 +1,46 @@
+{
+  "name": "react-cube3d",
+  "version": "0.0.1",
+  "description": "3D Cube inspired by Stripe.",
+  "main": "./lib/index.js",
+  "files": [
+    "lib",
+    "assets"
+  ],
+  "scripts": {
+    "start": "rc-tools run server",
+    "pub": "rc-tools run pub",
+    "lint": "rc-tools run lint",
+    "test": "rc-tools run compile && mocha"
+  },
+  "config": {
+    "port": 8000
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidroman0O/react-cube3D.git"
+  },
+  "keywords": [
+    "react",
+    "github",
+    "cube",
+    "cube3D"
+  ],
+  "author": "David Roman",
+  "bugs": {
+    "url": "https://github.com/davidroman0O/react-cube3D/issues"
+  },
+  "homepage": "https://github.com/davidroman0O/react-cube3D#readme",
+  "devDependencies": {
+    "mocha": "^2.5.3",
+    "rc-tools": "^5.5.11",
+    "react": "^15.2.0",
+    "react-dom": "^15.2.0",
+    "prop-types": "*",
+    "lodash": "*",
+    "react-probe": "~0.0.0"
+  },
+  "dependencies": {
+    "prop-types": "^15.5.10"
+  }
+}
