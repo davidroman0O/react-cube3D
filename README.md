@@ -5,6 +5,7 @@
 ```bash
 npm install --save react-cube3d
 ```
+![Example](https://media.giphy.com/media/2vmgLXBybBE1XLkISW/giphy.gif)
 
 ## Usage
 
