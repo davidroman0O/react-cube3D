@@ -29,3 +29,7 @@ function getRandomFloat(min, max) {
   palette={Palette.orange}
 />
 ```
+<<<<<<< HEAD
+=======
+
+>>>>>>> 32116385c60c676b3f71f692aae4386c9c7487d3
