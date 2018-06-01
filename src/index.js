@@ -91,6 +91,7 @@ export default class Cube extends Component {
     const [r, g, b] = this.props.palette.color;
     return {
       style: {
+        opacity: 0,
         position: "absolute",
         width: this.props.size,
         height: this.props.size,
@@ -182,7 +183,7 @@ export default class Cube extends Component {
   }
 
 
-  updateSides() {
+  updateSides(requestFrame = true) {
     const keys_sides = [ "top", "bottom", "left", "right", "front", "back" ];
     var { sides } = this.state;
     for (var i = 0; i < keys_sides.length; i++) {
@@ -196,15 +197,18 @@ export default class Cube extends Component {
         transform: this.getRotationSide(side),
         backgroundColor: this.getShading(side, distance),
         ...this.props.hasOwnProperty("sides") ? this.props.sides[keys_sides[i]].style : {},
+        opacity: window ? window.document.readyState === 'complete' ? 1 : 0 : 0,
       };
     }
     this.verifyCubeCoordsEdges();
     this.setState({
       sides: sides
     });
-    requestAnimationFrame(
-      this.updateSides.bind(this)
-    );
+    if (requestFrame) {
+      requestAnimationFrame(
+        this.updateSides.bind(this)
+      );
+    }
   }
 
 
@@ -230,8 +234,31 @@ export default class Cube extends Component {
     this.delta;
   }
 
+
   componentDidMount() {
     this.update();
+  }
+
+
+  getShadowOffset() {
+    let x = 0;
+    let y = 0;
+    if (typeof this.props.shadow.x == "string") {
+      x = `calc( -${this.props.size / 2}px + ${this.props.shadow.x} )`;
+    }
+    if (typeof this.props.shadow.x == "number") {
+      x = (-this.props.size / 2) + this.props.shadow.x;
+    }
+    if (typeof this.props.shadow.y == "string") {
+      y = `calc( -${this.props.size / 2}px + ${this.props.shadow.y} )`;
+    }
+    if (typeof this.props.shadow.y == "number") {
+      y = (-this.props.size / 2) + this.props.shadow.y;
+    }
+    return {
+      top: y,
+      left: x
+    };
   }
 
   render() {
@@ -242,17 +269,19 @@ export default class Cube extends Component {
     const shadows = [];
 
     mapKeys(this.state.sides, (value, key) => {
-      shadows.push(
-        <div
-          key={key}
-          style={
-            {
-              ...value.style,
-              backgroundColor: "#07427a"
+      if (!this.props.noShadow) {
+        shadows.push(
+          <div
+            key={key}
+            style={
+              {
+                ...value.style,
+                backgroundColor: "#07427a"
+              }
             }
-          }
-        />
-      );
+          />
+        );
+      }
       sides.push(
         <div
           onClick={(e) => this.props.onClick ? this.props.onClick(e, key, value) : null}
@@ -275,7 +304,8 @@ export default class Cube extends Component {
           onWheel={(e) => this.props.onWheel ? this.props.onWheel(e, key, value) : null}
           key={key}
           style={{
-            ...value.style
+            ...value.style,
+            // opacity: value.style
           }}
         />
       );
@@ -284,35 +314,54 @@ export default class Cube extends Component {
     return (
       <div
         style={{
-          width: this.props.size,
-          height: this.props.size,
-          top,
-          left,
-          position: "absolute",
+          position: "relative",
+          display: "flex",
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          // width: this.props.size * 1.5,
+          // height: this.props.size * 1.5,
+          minWidth: this.props.size * 1.2,
+          minHeight: this.props.size * 1.2,
+          height: "100%",
+          //  Used for debug
+          backgroundColor: this.props.backgroundColor || "transparent"
         }}
 
       >
+        {
+          !this.props.noShadow ?
+            <div
+              style={{
+                zIndex: 0,
+                position: "absolute",
+                ...this.getShadowOffset()
+                ,
+                right: 0,
+                bottom: 0,
+                // backgroundColor: "green",
+                transformStyle: "preserve-3d",
+                perspective: "600px",
+                backfaceVisibility: "hidden",
+                willChange: "transform",
+                "transform": `translateZ(-${this.props.size}px)`,
+                filter: `blur(${Math.round(this.props.size * this.props.blurFactor)}px)`,
+                opacity: Math.min(this.props.size / 120, this.props.opacityFactor)
+              }}
+            >
+              {
+                shadows
+              }
+            </div>
+          :
+            null
+        }
         <div
           style={{
-            zIndex: 0,
-            position: "absolute",
-            top: "40%", left:0, right: 0, bottom: 0,
-            transformStyle: "preserve-3d",
-            perspective: "600px",
-            backfaceVisibility: "hidden",
-            willChange: "transform",
-            "transform": `translateZ(-${this.props.size}px)`,
-            filter: `blur(${Math.round(this.props.size * this.props.blurFactor)}px)`,
-            opacity: Math.min(this.props.size / 120, this.props.opacityFactor)
-          }}
-        >
-          {
-            shadows
-          }
-        </div>
-        <div
-          style={{
-            zIndex: 100,
+            width: this.props.size,
+            height: this.props.size,
+            // backgroundColor: "green",
+            // zIndex: 5,
             transformStyle: "preserve-3d",
             perspective: "600px",
             backfaceVisibility: "hidden",
@@ -333,11 +382,19 @@ export default class Cube extends Component {
 
 
 Cube.propTypes = {
+  noShadow: PropTypes.bool,
+  shadow: PropTypes.object,
   palette: PropTypes.object,
   speed: PropTypes.object,
+  /*
+    size of the cube
+  */
   size: PropTypes.number,
   blurFactor: PropTypes.number,
   opacityFactor: PropTypes.number,
+  /*
+    initial angles
+  */
   x: PropTypes.number,
   y: PropTypes.number
 };
@@ -345,6 +402,11 @@ Cube.propTypes = {
 
 // Specifies the default values for props:
 Cube.defaultProps = {
+  noShadow: false,
+  shadow: {
+    x: 0,
+    y: 0
+  },
   palette: Palette.white,
   speed: { x: -0.11111, y: 0.1111 },
   size: 100,
