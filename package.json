@@ -1,6 +1,6 @@
 {
   "name": "react-cube3d",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "3D Cube inspired by Stripe.",
   "main": "./lib/index.js",
   "files": [
@@ -41,6 +41,7 @@
     "react-probe": "~0.0.0"
   },
   "dependencies": {
-    "prop-types": "^15.5.10"
+    "prop-types": "^15.5.10",
+    "tweezer.js": "^1.4.0"
   }
 }

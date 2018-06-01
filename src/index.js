@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 
 import { mapKeys } from "lodash";
 
+import Tweezer from 'tweezer.js'
+
+
 const directions = ["x", "y"];
+
 
 
 export const Palette = {
@@ -38,6 +42,8 @@ export const Palette = {
 export default class Cube extends Component {
 
   state = {
+    animate_x: false,
+    animate_y: false,
     x: this.props.x,
     y: this.props.y,
     sides: {
@@ -240,6 +246,69 @@ export default class Cube extends Component {
   }
 
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!this.state.animate_x && prevState.x != this.props.x) {
+      this.setState({
+        animate_x: true
+      }, () => {
+        new Tweezer({
+          start: prevState.x,
+          end: this.props.x,
+          duration: this.props.easingDuration,
+          easing: this.props.easing
+        })
+        .on('tick', value => {
+          // console.log("x - ", value);
+          if (this) {
+            this.setState({
+              x: value
+            })
+            this.updateSides(false);
+          }
+        })
+        .on("done", () => {
+          if (this) {
+            this.setState({
+              animate_x: false
+            });
+          }
+        })
+        .begin() // this fires the tweening
+      });
+      // console.log("Props difference x ", prevState.x, this.props.x);
+    }
+    if (!this.state.animate_y && prevState.y != this.props.y) {
+      this.setState({
+        animate_y: true
+      }, () => {
+          new Tweezer({
+            start: prevState.y,
+            end: this.props.y,
+            duration: this.props.easingDuration,
+            easing: this.props.easing
+          })
+          .on('tick', value => {
+            // console.log("y - ", value);
+            if (this) {
+              this.setState({
+                y: value
+              })
+              this.updateSides(false);
+            }
+          })
+          .on("done", () => {
+            if (this) {
+              this.setState({
+                animate_y: false
+              });
+            }
+          })
+          .begin() // this fires the tweening
+      });
+    }
+  }
+
+
   getShadowOffset() {
     let x = 0;
     let y = 0;
@@ -386,15 +455,11 @@ Cube.propTypes = {
   shadow: PropTypes.object,
   palette: PropTypes.object,
   speed: PropTypes.object,
-  /*
-    size of the cube
-  */
   size: PropTypes.number,
   blurFactor: PropTypes.number,
   opacityFactor: PropTypes.number,
-  /*
-    initial angles
-  */
+  easingDuration: PropTypes.number,
+  easing: PropTypes.func,
   x: PropTypes.number,
   y: PropTypes.number
 };
@@ -412,6 +477,11 @@ Cube.defaultProps = {
   size: 100,
   blurFactor: 0.2,
   opacityFactor: 0.4,
+  easingDuration: 500,
+  easing: (t, b, c, d) => {
+    if ((t/=d/2) < 1) return c/2*t*t + b
+    return -c/2 * ((--t)*(t-2) - 1) + b
+  },
   x: 0,
   y: 0
 };
